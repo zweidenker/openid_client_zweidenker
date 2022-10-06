@@ -442,14 +442,14 @@ class Flow {
         client.issuer.tokenEndpoint.replace(queryParameters: {'state': state});
     if (type == FlowType.jwtBearer) {
       json = await http.post(tokenUriWithState,
-          body: {
+          body: jsonEncode({
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'assertion': code,
-          },
+          }),
           client: client.httpClient);
     } else if (type == FlowType.proofKeyForCodeExchange) {
       json = await http.post(tokenUriWithState,
-          body: {
+          body: jsonEncode({
             'grant_type': 'authorization_code',
             'code': code,
             'redirect_uri': redirectUri.toString(),
@@ -458,28 +458,28 @@ class Flow {
               'client_secret': client.clientSecret,
             'code_verifier': _proofKeyForCodeExchange['code_verifier'],
             'state': state,
-          },
+          }),
           client: client.httpClient);
     } else if (methods!.contains('client_secret_post')) {
       json = await http.post(tokenUriWithState,
-          body: {
+          body: jsonEncode({
             'grant_type': 'authorization_code',
             'code': code,
             'redirect_uri': redirectUri.toString(),
             'client_id': client.clientId,
             'client_secret': client.clientSecret,
-          },
+          }),
           client: client.httpClient);
     } else if (methods.contains('client_secret_basic')) {
       var h =
           base64.encode('${client.clientId}:${client.clientSecret}'.codeUnits);
       json = await http.post(tokenUriWithState,
           headers: {'authorization': 'Basic $h'},
-          body: {
+          body: jsonEncode({
             'grant_type': 'authorization_code',
             'code': code,
             'redirect_uri': redirectUri.toString()
-          },
+          }),
           client: client.httpClient);
     } else {
       throw UnsupportedError('Unknown auth methods: $methods');
